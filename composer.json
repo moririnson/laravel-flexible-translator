@@ -1,0 +1,33 @@
+{
+    "name": "morimorim/laravel-flexisble-translator",
+    "description": "Laravel Flexible Translator",
+    "type": "library",
+    "require": {
+        "illuminate/support": "^9|^10",
+        "php": "^8.2",
+        "ray/aop": "^2",
+        "eftec/bladeone": "^4.9"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.4"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Laravel\\Flexible\\Translator\\": "src/"
+        }
+    },
+    "extra": {
+      "laravel": {
+        "providers": [
+            "Laravel\\Flexible\\Translator\\LaravelFlexisbleTranslatorServiceProvider"
+        ]
+      }
+    },
+    "authors": [
+        {
+            "name": "moririnson",
+            "email": "morimorim7180@gmail.com"
+        }
+    ]
+}
