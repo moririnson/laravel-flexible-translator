@@ -21,9 +21,9 @@ php artisan migrate
 ```
 Translation::create([
     'key' => self::KEY_DB,
-    'values' => [
-        new TranslationValue('ja', '(DB) :num 例'),
-        new TranslationValue('en', '(DB) example :num'),
+    'texts' => [
+        'ja' => '(DB) :num 例',
+        'en' => '(DB) example :num',
     ],
 ]);
 ```

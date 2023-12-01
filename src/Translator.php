@@ -10,17 +10,14 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Translation\Translator as IlluminateTranslator;
 use Laravel\Flexible\translator\Models\Translation;
 
-class Translator implements Contracts
+class Translator extends IlluminateTranslator
 {
-    private string $locale;
     private Translation $model;
-    private IlluminateTranslator $default;
 
-    public function __construct(string $locale, Translation $model, IlluminateTranslator $default)
+    public function __construct(Translation $model, Loader $loader, string $locale)
     {
-        $this->setLocale($locale);
         $this->model = $model;
-        $this->default = $default;
+        parent::__construct($loader, $locale);
     }
 
     /**
@@ -31,26 +28,18 @@ class Translator implements Contracts
      * @param  string|null  $locale
      * @return mixed
      */
-    public function get($key, array $replace = [], $locale = null)
+    public function get($key, array $replace = [], $locale = null, $fallback = true)
     {
-        $default = $this->default->get($key, $replace, $locale, false);
+        $default = parent::get($key, $replace, $locale, $fallback);
         if ($default !== $key) {
             return $default;
         }
 
         $locale = $locale ?? App::getLocale();
         $ttl = config('laravel-flexisble-translator.cache.ttl');
-        return Cache::remember($key . '::' . $locale, DateInterval::createFromDateString($ttl), function () use ($key, $replace, $locale) {
-            $translation = $this->model->where('key', $key)->take(1)->get()->first();
-            if (!isset($translation)) {
-                return $this->default->get($key, $replace, $locale);
-            }
-            $value = $translation->values->firstWhere('locale', $locale);
-            if (!isset($value)) {
-                return $this->default->get($key, $replace, $locale);
-            }
-            return array_reduce(array_keys($replace), fn ($carry, $k) => str_replace(':' . $k, $replace[$k], $carry), $value->value); 
-        });
+        $cache_key = implode('::', [$key, json_encode($replace), $locale]);
+        $value = Cache::remember($cache_key, DateInterval::createFromDateString($ttl), fn () => $this->getValue($key, $locale));
+        return parent::makeReplacements($value, $replace);
     }
 
     /**
@@ -64,7 +53,18 @@ class Translator implements Contracts
      */
     public function choice($key, $number, array $replace = [], $locale = null)
     {
-        
+        $default = parent::choice($key, $number, $replace, $locale);
+        if ($default !== $key) {
+            return $default;
+        }
+
+        $locale = $locale ?? App::getLocale();
+        $ttl = config('laravel-flexisble-translator.cache.ttl');
+        $cache_key = implode('::', [$key, $number, json_encode($replace), $locale]);
+        $value = Cache::remember($cache_key, DateInterval::createFromDateString($ttl), fn () => $this->getValue($key, $locale));
+        return parent::makeReplacements(
+            parent::getSelector()->choose($value, $number, $locale), $replace,
+        );
     }
 
     /**
@@ -86,5 +86,14 @@ class Translator implements Contracts
     public function setLocale($locale)
     {
         $this->locale = $locale;
+    }
+
+    private function getValue($key, $locale)
+    {
+        $translation = $this->model->where('key', $key)->take(1)->get()->first();
+        if (!isset($translation) || !array_key_exists($locale, $translation->texts)) {
+            return $key;
+        }
+        return $translation->texts[$locale];
     }
 }

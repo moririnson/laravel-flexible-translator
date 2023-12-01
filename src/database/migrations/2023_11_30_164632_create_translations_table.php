@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('translations', function (Blueprint $table) {
             $table->id();
             $table->string('key')->unique();
-            $table->json('values');
+            $table->json('texts');
+            $table->string('description')->nullable();
             $table->timestamps();
         });
     }

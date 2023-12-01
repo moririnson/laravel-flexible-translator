@@ -42,31 +42,41 @@ class ExampleTranslate extends Command
         echo __(self::KEY, ['num' => '1']) . "\n";
         Translation::create([
             'key' => self::KEY,
-            'values' => [
-                new TranslationValue('ja', '(DB) :num 例'),
-                new TranslationValue('en', '(DB) example :num'),
+            'texts' => [
+                'ja' => '(DB) :num 例',
+                'en' => '(DB) example :num',
             ],
         ]);
         echo __(self::KEY, ['num' => '1']) . "\n";
 
         Translation::create([
             'key' => self::KEY_DB,
-            'values' => [
-                new TranslationValue('ja', '(DB) :num 例'),
-                new TranslationValue('en', '(DB) example :num'),
+            'texts' => [
+                'ja' => '(DB) :num 例',
+                'en' => '(DB) example :num',
             ],
         ]);
         echo __(self::KEY_DB, ['num' => '1']) . "\n";
 
         // choice
+        echo Lang::choice(self::CHOICE_KEY, 1) . "\n";
         Translation::create([
-            'key' => self::CHOICE_KEY_DB,
-            'values' => [
-                new TranslationValue('ja', '(DB) :num 例'),
-                new TranslationValue('en', '(DB) example :num'),
+            'key' => self::CHOICE_KEY,
+            'texts' => [
+                'ja' => '{0} (DB)  :count 個|{1} (DB)  :count 個|(DB) [2,*] :count 個',
+                'en' => '{0} (DB)  :count items|{1} (DB)  :count item|(DB) [2,*] :count items',
             ],
         ]);
-        echo Lang::choice(self::CHOICE_KEY_DB, ['num' => '1']) . "\n";
+        echo Lang::choice(self::CHOICE_KEY, 1) . "\n";
+
+        Translation::create([
+            'key' => self::CHOICE_KEY_DB,
+            'texts' => [
+                'ja' => '{0} (DB)  :count 個|{1} (DB)  :count 個|(DB) [2,*] :count 個',
+                'en' => '{0} (DB)  :count items|{1} (DB)  :count item|(DB) [2,*] :count items',
+            ],
+        ]);
+        echo Lang::choice(self::CHOICE_KEY_DB, 1) . "\n";
 
         DB::rollBack();
     }

@@ -2,26 +2,28 @@
 
 namespace Laravel\Flexible\Translator\Schemas;
 
-use Illuminate\Support\Collection;
 use Laravel\Flexible\Translator\Schemas\TranslationValue;
 
 class TranslationValuesSchema
 {
-    public function get($model, string $key, $value, array $attributes): Collection
+    public function get($model, string $key, $value, array $attributes): array
     {
-        $items = collect([]);
-
-        foreach (json_decode($value, true) as $translation_value) {
-            $locale = key($translation_value);
-            $test_item = new TranslationValue($locale, $translation_value[$locale]);
-            $items->push($test_item);
+        $values = json_decode($value, true);
+        assert(is_array($values));
+        foreach ($values as $k => $v) {
+            assert(is_string($k));
+            assert(is_string($v) || $v == null);
         }
-
-        return $items;
+        return $values;
     }
 
     public function set($model, string $key, $value, array $attributes)
     {
+        assert(is_array($value));
+        foreach ($value as $k => $v) {
+            assert(is_string($k));
+            assert(is_string($v) || $v == null);
+        }
         return json_encode($value);
     }
 }

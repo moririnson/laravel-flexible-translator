@@ -26,10 +26,10 @@ class LaravelFlexisbleTranslatorServiceProvider extends \Illuminate\Support\Serv
             'laravel-flexisble-translator',
         );
         $this->app->extend('translator', function () {
-            $locale = $this->app->getLocale();
+            $translation = $this->app->make(Translation::class);
             $loader = $this->app['translation.loader'];
-            $default_translator = new IlluminateTranslator($loader, $locale);
-            return new Translator($locale, new Translation, $default_translator);
+            $locale = $this->app->getLocale();
+            return new Translator($translation, $loader, $locale);
         });
     }
 }

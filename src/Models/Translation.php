@@ -10,6 +10,6 @@ class Translation extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
-        'values' => TranslationValuesSchema::class,
+        'texts' => TranslationValuesSchema::class,
     ];
 } 
